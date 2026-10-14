@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+/* Palette: near-black surfaces, one hairline border colour, green/red reserved
+   for price direction so they always mean something. */
+@theme {
+  --color-bg: #06060c;
+  --color-panel: #101015;
+  --color-raised: #18181e;
+  --color-line: rgb(255 255 255 / 0.07);
+  --color-line-strong: rgb(255 255 255 / 0.14);
+  --color-fg: #f3f3f3;
+  --color-muted: #8c8d91;
+  --color-faint: #747478;
+  --color-up: #1dea99;
+  --color-down: #f05562;
+  --color-up-soft: rgb(29 234 153 / 0.12);
+  --color-down-soft: rgb(240 85 98 / 0.12);
+  --color-accent: #bfceff;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  /* Built-in CSS easings are too weak for UI. These start fast, so the
+     interface answers the instant the user acts. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+  /* Prices must not jitter as digits change width. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgb(255 255 255 / 0.18);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+
+/* Anything pressable acknowledges the press. Only transform + the properties
+   that visibly change are transitioned, never `all`. */
+.press {
+  transition:
+    transform 140ms var(--ease-out),
+    background-color 140ms var(--ease-out),
+    color 140ms var(--ease-out),
+    border-color 140ms var(--ease-out),
+    opacity 140ms var(--ease-out);
+}
+.press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.press:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Touch devices fire :hover on tap; only real pointers get hover styling. */
+@media (hover: hover) and (pointer: fine) {
+  .hover-raise:hover:not(:disabled) {
+    background-color: var(--color-raised);
+  }
+  .hover-fg:hover:not(:disabled) {
+    color: var(--color-fg);
+  }
+}
+
+/* Entrances: opacity + a small rise, from scale >= .95 (nothing appears from
+   nothing). Used for popovers and panels, never for streaming data. */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pop-in {
+  animation: pop-in 160ms var(--ease-out);
+  transform-origin: var(--origin, top left);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: fade-in 180ms var(--ease-out);
+}
+
+@keyframes pulse-dot {
+  50% {
+    opacity: 0.35;
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+/* Reduced motion keeps opacity/colour feedback and drops movement. */
+@media (prefers-reduced-motion: reduce) {
+  .press:active:not(:disabled) {
+    transform: none;
+  }
+  .pop-in {
+    animation-name: fade-in;
+  }
+  .pulse-dot {
+    animation: none;
+  }
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="range"] {
+  accent-color: var(--color-fg);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
